@@ -1,146 +1,267 @@
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport"
-content="width=device-width, initial-scale=1, maximum-scale=1">
+content="width=device-width, initial-scale=1">
 
-<title>DLSU Laguna | SHWR Scanner</title>
+<title>DLSU Laguna | SHWR Verification</title>
 
-<script>
-/* REPLACE THIS WITH YOUR APPS SCRIPT WEB APP URL */
-const API_URL = "PASTE_YOUR_APPS_SCRIPT_EXEC_URL_HERE";
-</script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
 <style>
+
 * {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  padding: 20px;
-  background: #f3f5f7;
-  font-family: Arial, sans-serif;
+  padding: 15px;
+  background: #f2f4f7;
+  font-family: Arial, Helvetica, sans-serif;
   color: #222;
 }
 
 .container {
-  max-width: 480px;
+  width: 100%;
+  max-width: 520px;
   margin: 20px auto;
+  padding: 24px;
   background: white;
-  border-radius: 16px;
-  padding: 22px;
+  border-radius: 15px;
   box-shadow: 0 4px 18px rgba(0,0,0,.08);
 }
 
 .header {
   text-align: center;
-  margin-bottom: 20px;
 }
 
-.header h2 {
-  margin: 5px 0;
-  color: #006b3f;
-  font-size: 21px;
+.university {
+  color: #08783e;
+  font-size: 17px;
+  font-weight: bold;
 }
 
-.header p {
-  margin: 5px 0;
-  color: #666;
+.unit {
+  margin-top: 5px;
   font-size: 13px;
+  font-weight: bold;
+  color: #555;
+}
+
+h1 {
+  margin: 20px 0 5px;
+  color: #08783e;
+  font-size: 23px;
+}
+
+.subtitle {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.5;
+}
+
+.announcement {
+  margin: 20px 0;
+  padding: 14px;
+  background: #f0f7f2;
+  border-left: 4px solid #08783e;
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.announcement strong {
+  color: #08783e;
+}
+
+.section-title {
+  margin: 20px 0 10px;
+  font-size: 14px;
+  font-weight: bold;
 }
 
 #reader {
   width: 100%;
+  min-height: 100px;
   overflow: hidden;
-  border-radius: 12px;
+  border: 2px dashed #b8c8bd;
+  border-radius: 10px;
+  background: #fafafa;
+}
+
+#reader video {
+  width: 100% !important;
+  border-radius: 8px;
+}
+
+input {
+  width: 100%;
+  padding: 15px;
+  margin-top: 8px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 18px;
+  text-align: center;
+}
+
+input:focus {
+  outline: none;
+  border-color: #08783e;
 }
 
 button {
   width: 100%;
   padding: 15px;
-  border: none;
-  border-radius: 9px;
   margin-top: 12px;
-  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  background: #08783e;
+  color: white;
+  font-size: 15px;
   font-weight: bold;
   cursor: pointer;
 }
 
-.start {
-  background: #006b3f;
-  color: white;
+button:disabled {
+  background: #999;
+  cursor: not-allowed;
 }
 
-.reset {
-  background: #333;
-  color: white;
+.secondary {
+  background: #555;
 }
 
-.verify {
-  background: #e9edf0;
-  color: #222;
-}
-
-input {
-  width: 100%;
-  padding: 14px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  margin-top: 12px;
-  font-size: 16px;
-}
-
-.result {
-  margin-top: 18px;
-  padding: 20px 12px;
-  border-radius: 10px;
-  text-align: center;
+.status {
   display: none;
-}
-
-.result h1 {
-  margin: 0;
-  font-size: 27px;
-}
-
-.result p {
-  margin-bottom: 0;
+  margin-top: 15px;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: center;
   overflow-wrap: anywhere;
 }
 
-.with {
-  background: #e0f4e8;
-  color: #126333;
+.status.info {
+  display: block;
+  background: #e8f1ff;
+  color: #174b83;
 }
 
-.without {
-  background: #fde8e8;
+.status.success {
+  display: block;
+  background: #e6f5eb;
+  color: #08783e;
+}
+
+.status.error {
+  display: block;
+  background: #fdeaea;
   color: #a51d1d;
 }
 
-.error {
-  background: #fff2d8;
-  color: #805000;
+.result {
+  display: none;
+  margin-top: 20px;
+  padding: 25px 15px;
+  border-radius: 12px;
+  text-align: center;
 }
 
-#message {
-  text-align: center;
-  color: #666;
+.with-shwr {
+  background: #e5f5eb;
+  border: 2px solid #168346;
+}
+
+.no-shwr {
+  background: #fff0f0;
+  border: 2px solid #c62828;
+}
+
+.error-result {
+  background: #fff5e5;
+  border: 2px solid #d18a00;
+}
+
+.result-label {
+  color: #555;
   font-size: 13px;
-  margin-top: 12px;
+}
+
+.result-status {
+  margin: 12px 0;
+  font-size: 30px;
+  font-weight: bold;
+}
+
+.with-shwr .result-status {
+  color: #08783e;
+}
+
+.no-shwr .result-status {
+  color: #c62828;
+}
+
+.error-result .result-status {
+  color: #a56800;
+  font-size: 22px;
+}
+
+.student-id {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #555;
   overflow-wrap: anywhere;
 }
 
-.footer {
+.form-link {
+  display: none;
+  margin-top: 20px;
   text-align: center;
+  font-size: 13px;
+}
+
+.form-link a {
+  color: #08783e;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.footer {
+  margin-top: 25px;
   color: #888;
   font-size: 11px;
-  margin-top: 22px;
+  line-height: 1.5;
+  text-align: center;
 }
+
+.hidden {
+  display: none !important;
+}
+
+@media(max-width:480px) {
+
+  body {
+    padding: 8px;
+  }
+
+  .container {
+    margin: 8px auto;
+    padding: 18px;
+  }
+
+  h1 {
+    font-size: 20px;
+  }
+
+}
+
 </style>
+
 </head>
 
 <body>
@@ -148,330 +269,648 @@ input {
 <div class="container">
 
   <div class="header">
-    <h2>DE LA SALLE UNIVERSITY</h2>
-    <p>Laguna Campus</p>
-    <h3>SHWR VERIFICATION</h3>
-    <p>Student Health and Wellness Record</p>
+
+    <div class="university">
+      DE LA SALLE UNIVERSITY
+    </div>
+
+    <div class="unit">
+      LAGUNA CAMPUS<br>
+      HEALTH SERVICES UNIT
+    </div>
+
+    <h1>SHWR VERIFICATION</h1>
+
+    <div class="subtitle">
+      Student Health and Wellness Record<br>
+      Academic Year 2026–2027
+    </div>
+
+  </div>
+
+
+  <div class="announcement">
+
+    <strong>ANNOUNCEMENT</strong>
+
+    <p>
+      All OLD and NEW students for Academic Year
+      2026–2027, particularly all Grade 11 and
+      Grade 12 Senior High School students, are
+      REQUIRED to accomplish and submit the
+      Student Health and Wellness Record (SHWR).
+    </p>
+
+    <p>
+      Scan your Student ID barcode or QR code to
+      verify your SHWR submission.
+    </p>
+
+  </div>
+
+
+  <div class="section-title">
+    1. BARCODE / QR CODE SCANNER
   </div>
 
   <div id="reader"></div>
 
-  <button class="start" id="startButton"
-  onclick="startScanner()">
-    START BARCODE SCANNER
+  <button id="startButton" onclick="startScanner()">
+    START SCANNER
   </button>
 
-  <p id="message">
-    Tap the button to activate your phone camera.
-  </p>
+  <button id="stopButton"
+    class="secondary hidden"
+    onclick="stopScanner()">
+    STOP SCANNER
+  </button>
 
-  <div style="margin-top:22px">
-    <label><b>Manual Student ID Verification</b></label>
-    <input id="studentID"
+
+  <div class="section-title">
+    2. MANUAL STUDENT ID ENTRY
+  </div>
+
+  <input
+    id="studentIdInput"
     type="text"
     placeholder="Enter Student ID Number"
-    autocomplete="off">
+    autocomplete="off"
+    autocapitalize="characters"
+  >
 
-    <button class="verify" onclick="manualVerify()">
-      VERIFY STUDENT ID
-    </button>
+  <button id="verifyButton"
+    onclick="verifyManual()">
+    VERIFY STUDENT
+  </button>
+
+
+  <div id="statusMessage" class="status"></div>
+
+
+  <div id="resultBox" class="result">
+
+    <div class="result-label">
+      STUDENT HEALTH AND WELLNESS RECORD
+    </div>
+
+    <div id="resultStatus" class="result-status"></div>
+
+    <div id="resultStudentId" class="student-id"></div>
+
+    <div id="resultMessage" class="subtitle"></div>
+
   </div>
 
-  <div id="result" class="result">
-    <h1 id="status"></h1>
-    <p id="displayID"></p>
-  </div>
 
-  <button class="reset" onclick="resetScanner()">
+  <button
+    id="nextButton"
+    class="hidden"
+    onclick="resetApp()">
     SCAN NEXT STUDENT
   </button>
 
+
+  <div id="formLink" class="form-link">
+
+    Haven't submitted your SHWR?
+
+    <br>
+
+    <a
+      href="https://forms.gle/ZyPLozq3AqGmJkCR6"
+      target="_blank"
+      rel="noopener">
+      SUBMIT SHWR HERE
+    </a>
+
+  </div>
+
+
   <div class="footer">
-    Health Services Unit | DLSU Laguna Campus
+
+    DE LA SALLE UNIVERSITY - LAGUNA CAMPUS<br>
+    HEALTH SERVICES UNIT<br>
+    STUDENT HEALTH AND WELLNESS RECORD<br>
+    ACADEMIC YEAR 2026–2027
+
   </div>
 
 </div>
 
+
 <script>
-let scanner = null;
+
+/************************************************************
+ * GOOGLE APPS SCRIPT API
+ ************************************************************/
+
+const SHWR_API_URL =
+"https://script.google.com/a/macros/dlsu.edu.ph/s/AKfycbwJR8zblseyhUDx0voMPquhJsaPpxnpfM3HGiugPt3lbehG0ynYPSTM36Nj9Y2wLXqdFQ/exec";
+
+
+/************************************************************
+ * GLOBAL VARIABLES
+ ************************************************************/
+
+let html5QrCode = null;
 let scannerRunning = false;
-let processing = false;
-let libraryLoading = false;
+let isProcessing = false;
 
-/* BARCODE FORMATS ONLY - NO QR */
-const barcodeFormats = [
-  1,  // CODE_128
-  2,  // CODE_39
-  3,  // CODE_93
-  4,  // CODABAR
-  5,  // EAN_13
-  6,  // EAN_8
-  7,  // ITF
-  8,  // UPC_A
-  9   // UPC_E
-];
 
-function setMessage(message) {
-  document.getElementById("message").textContent = message;
-}
+/************************************************************
+ * INITIALIZE APPLICATION
+ ************************************************************/
 
-function loadScannerLibrary() {
-  return new Promise((resolve, reject) => {
-    if (window.Html5Qrcode) {
-      resolve();
-      return;
-    }
+window.addEventListener("load", function() {
 
-    if (libraryLoading) {
-      const check = setInterval(() => {
-        if (window.Html5Qrcode) {
-          clearInterval(check);
-          resolve();
-        }
-      }, 200);
+  document.getElementById("formLink").style.display =
+    "block";
 
-      setTimeout(() => {
-        clearInterval(check);
-        if (!window.Html5Qrcode) {
-          reject(new Error("Scanner library loading timed out."));
-        }
-      }, 12000);
+  showStatus(
+    "SHWR Verification System is ready.",
+    "success"
+  );
 
-      return;
-    }
+});
 
-    libraryLoading = true;
 
-    const sources = [
-      "https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js",
-      "https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"
-    ];
-
-    function trySource(index) {
-      if (index >= sources.length) {
-        libraryLoading = false;
-        reject(new Error(
-          "Could not load barcode library. Check your internet connection."
-        ));
-        return;
-      }
-
-      const script = document.createElement("script");
-      script.src = sources[index];
-
-      script.onload = () => {
-        libraryLoading = false;
-        if (window.Html5Qrcode) {
-          resolve();
-        } else {
-          trySource(index + 1);
-        }
-      };
-
-      script.onerror = () => {
-        trySource(index + 1);
-      };
-
-      document.head.appendChild(script);
-    }
-
-    trySource(0);
-  });
-}
+/************************************************************
+ * START CAMERA SCANNER
+ ************************************************************/
 
 async function startScanner() {
-  if (scannerRunning) return;
 
-  if (!navigator.mediaDevices ||
-      !navigator.mediaDevices.getUserMedia) {
-    setMessage(
-      "Camera access is unavailable. Open this HTTPS page directly in Chrome or Safari."
-    );
-    return;
-  }
+  if (isProcessing || scannerRunning) return;
 
-  if (API_URL.indexOf("/exec") === -1 ||
-      API_URL.indexOf("PASTE_YOUR") !== -1) {
-    setMessage("Please configure your Apps Script Web App URL first.");
-    return;
-  }
+  const startButton =
+    document.getElementById("startButton");
+
+  startButton.disabled = true;
 
   try {
-    processing = false;
-    setMessage("Loading barcode scanner...");
 
-    await loadScannerLibrary();
+    if (!window.Html5Qrcode) {
 
-    scanner = new Html5Qrcode("reader", {
-      formatsToSupport: barcodeFormats,
-      verbose: false
-    });
+      throw new Error(
+        "Scanner library failed to load. Check internet connection."
+      );
 
-    setMessage("Requesting camera permission...");
+    }
 
-    await scanner.start(
-      { facingMode: "environment" },
-      {
-        fps: 12,
-        aspectRatio: 1.5
-      },
-      onBarcodeDetected,
-      () => {}
+    showStatus(
+      "Initializing camera. Please allow camera access.",
+      "info"
     );
 
-    scannerRunning = true;
-    setMessage("Camera active. Point it at the student's barcode.");
+    if (!html5QrCode) {
 
-    document.getElementById("startButton").disabled = true;
+      html5QrCode = new Html5Qrcode("reader");
+
+    }
+
+    const scannerConfig = {
+
+      fps: 10,
+
+      qrbox: {
+        width: 250,
+        height: 150
+      },
+
+      aspectRatio: 1.0
+
+    };
+
+    try {
+
+      // Try rear camera first.
+
+      await html5QrCode.start(
+        { facingMode: "environment" },
+        scannerConfig,
+        handleBarcodeResult,
+        function() {}
+      );
+
+    } catch (rearError) {
+
+      console.warn("Rear camera failed:", rearError);
+
+      // Fallback to front camera.
+
+      await html5QrCode.start(
+        { facingMode: "user" },
+        scannerConfig,
+        handleBarcodeResult,
+        function() {}
+      );
+
+    }
+
+    scannerRunning = true;
+
+    startButton.classList.add("hidden");
+
+    document.getElementById("stopButton")
+      .classList.remove("hidden");
+
+    showStatus(
+      "Scanner ready. Position the Student ID barcode inside the frame.",
+      "success"
+    );
 
   } catch (error) {
+
+    console.error("Camera error:", error);
+
     scannerRunning = false;
-    setMessage("CAMERA ERROR: " + (error.message || error));
+
+    startButton.disabled = false;
+
+    startButton.classList.remove("hidden");
+
+    document.getElementById("stopButton")
+      .classList.add("hidden");
+
+    showStatus(
+      "CAMERA ERROR: " +
+      error.name + " - " + error.message,
+      "error"
+    );
+
   }
+
 }
 
-async function onBarcodeDetected(decodedText) {
-  if (processing) return;
 
-  const studentID = String(decodedText || "").trim();
+/************************************************************
+ * STOP CAMERA SCANNER
+ ************************************************************/
 
-  if (!studentID) return;
+async function stopScanner() {
 
-  processing = true;
+  try {
+
+    if (html5QrCode && scannerRunning) {
+
+      await html5QrCode.stop();
+
+    }
+
+  } catch (error) {
+
+    console.warn("Scanner stop warning:", error);
+
+  }
+
+  scannerRunning = false;
+
+  document.getElementById("startButton")
+    .classList.remove("hidden");
+
+  document.getElementById("startButton").disabled =
+    false;
+
+  document.getElementById("stopButton")
+    .classList.add("hidden");
+
+}
+
+
+/************************************************************
+ * HANDLE BARCODE RESULT
+ ************************************************************/
+
+async function handleBarcodeResult(decodedText) {
+
+  if (isProcessing) return;
+
+  if (!decodedText || !decodedText.trim()) return;
+
+  isProcessing = true;
+
+  const studentID = decodedText.trim();
+
+  document.getElementById("studentIdInput").value =
+    studentID;
 
   await stopScanner();
 
-  document.getElementById("studentID").value = studentID;
+  verifyStudentID(studentID);
 
-  verifyStudent(studentID);
 }
 
-function stopScanner() {
-  if (!scanner || !scannerRunning) {
-    scannerRunning = false;
-    return Promise.resolve();
-  }
 
-  return scanner.stop()
-    .catch(() => {})
-    .then(() => {
-      scannerRunning = false;
-    });
-}
+/************************************************************
+ * MANUAL STUDENT ID ENTRY
+ ************************************************************/
 
-function verifyStudent(studentID) {
-  studentID = String(studentID || "").trim();
+function verifyManual() {
+
+  if (isProcessing) return;
+
+  const studentID = document
+    .getElementById("studentIdInput")
+    .value
+    .trim();
 
   if (!studentID) {
-    showResult("INVALID ID", "", "error");
+
+    showStatus(
+      "Please enter a Student ID number.",
+      "error"
+    );
+
     return;
+
   }
 
-  setMessage("Verifying student ID...");
+  verifyStudentID(studentID);
+
+}
+
+
+/************************************************************
+ * ENTER KEY SUPPORT
+ ************************************************************/
+
+document
+  .getElementById("studentIdInput")
+  .addEventListener("keydown", function(event) {
+
+    if (event.key === "Enter") {
+
+      verifyManual();
+
+    }
+
+  });
+
+
+/************************************************************
+ * VERIFY STUDENT USING JSONP
+ ************************************************************/
+
+function verifyStudentID(studentID) {
+
+  if (!studentID) {
+
+    isProcessing = false;
+
+    showStatus(
+      "Invalid Student ID.",
+      "error"
+    );
+
+    return;
+
+  }
+
+  isProcessing = true;
+
+  document.getElementById("verifyButton").disabled =
+    true;
+
+  document.getElementById("resultBox").style.display =
+    "none";
+
+  document.getElementById("nextButton")
+    .classList.add("hidden");
+
+  showStatus(
+    "Checking SHWR records...",
+    "info"
+  );
 
   const callbackName =
-    "shwrCallback_" + Date.now() + "_" +
+    "shwrCallback_" +
+    Date.now() + "_" +
     Math.floor(Math.random() * 100000);
 
   const script = document.createElement("script");
-  const timeout = setTimeout(() => {
-    cleanup();
-    showResult(
-      "CONNECTION ERROR",
-      "Unable to reach the SHWR database.",
-      "error"
-    );
-  }, 15000);
+
+  let completed = false;
+
+  let timeout;
 
   function cleanup() {
+
+    if (completed) return;
+
+    completed = true;
+
     clearTimeout(timeout);
+
     delete window[callbackName];
+
     if (script.parentNode) {
+
       script.parentNode.removeChild(script);
+
     }
+
+    document.getElementById("verifyButton").disabled =
+      false;
+
+    isProcessing = false;
+
   }
 
+  function displayError(message) {
+
+    if (completed) return;
+
+    cleanup();
+
+    showResult(
+      "ERROR",
+      studentID,
+      message,
+      "error-result"
+    );
+
+  }
+
+  // Receive Google Apps Script response.
+
   window[callbackName] = function(response) {
+
+    if (completed) return;
+
     cleanup();
 
     if (!response || !response.success) {
+
       showResult(
-        "VERIFICATION ERROR",
+        "ERROR",
+        studentID,
         response && response.message
           ? response.message
-          : "Please contact the Health Services Unit.",
-        "error"
+          : "Verification failed.",
+        "error-result"
       );
+
       return;
+
     }
 
-    showResult(
-      response.status,
-      "Student ID: " + response.studentId,
-      response.status === "WITH SHWR" ? "with" : "without"
-    );
+    if (response.status === "WITH SHWR") {
 
-    setMessage("Verification completed.");
+      showResult(
+        "WITH SHWR",
+        response.studentId,
+        "Student Health and Wellness Record is on file.",
+        "with-shwr"
+      );
+
+    }
+
+    else if (response.status === "NO SHWR") {
+
+      showResult(
+        "NO SHWR",
+        response.studentId,
+        "No Student Health and Wellness Record was found.",
+        "no-shwr"
+      );
+
+    }
+
+    else {
+
+      showResult(
+        "ERROR",
+        studentID,
+        response.message || "Invalid server response.",
+        "error-result"
+      );
+
+    }
+
   };
 
-  script.onerror = function() {
-    cleanup();
-    showResult(
-      "CONNECTION ERROR",
-      "Could not connect to the verification service.",
-      "error"
-    );
-  };
+  // Build API request.
 
-  script.src =
-    API_URL +
+  const query =
     "?action=verify" +
     "&id=" + encodeURIComponent(studentID) +
     "&callback=" + encodeURIComponent(callbackName) +
     "&_=" + Date.now();
 
-  document.body.appendChild(script);
+  script.src = SHWR_API_URL + query;
+
+  script.onerror = function() {
+
+    displayError(
+      "Unable to connect to SHWR server. Check access and internet connection."
+    );
+
+  };
+
+  timeout = setTimeout(function() {
+
+    displayError(
+      "Server timeout. Please try again."
+    );
+
+  }, 15000);
+
+  document.head.appendChild(script);
+
 }
 
-function manualVerify() {
-  const id = document.getElementById("studentID").value;
-  if (!id.trim()) {
-    showResult("ENTER STUDENT ID", "", "error");
-    return;
-  }
 
-  processing = true;
-  verifyStudent(id);
+/************************************************************
+ * DISPLAY STUDENT RESULT
+ ************************************************************/
+
+function showResult(
+  status,
+  studentID,
+  message,
+  resultClass
+) {
+
+  const resultBox =
+    document.getElementById("resultBox");
+
+  resultBox.className =
+    "result " + resultClass;
+
+  document.getElementById("resultStatus")
+    .textContent = status;
+
+  document.getElementById("resultStudentId")
+    .textContent = "Student ID: " + studentID;
+
+  document.getElementById("resultMessage")
+    .textContent = message;
+
+  resultBox.style.display = "block";
+
+  document.getElementById("nextButton")
+    .classList.remove("hidden");
+
+  showStatus(
+    "Verification completed.",
+    "success"
+  );
+
+  isProcessing = false;
+
 }
 
-function showResult(status, detail, className) {
-  const result = document.getElementById("result");
 
-  result.style.display = "block";
-  result.className = "result " + className;
+/************************************************************
+ * STATUS MESSAGE
+ ************************************************************/
 
-  document.getElementById("status").textContent = status;
-  document.getElementById("displayID").textContent = detail;
+function showStatus(message, type) {
+
+  const statusBox =
+    document.getElementById("statusMessage");
+
+  statusBox.textContent = message;
+
+  statusBox.className = "status " + type;
+
 }
 
-async function resetScanner() {
+
+/************************************************************
+ * RESET FOR NEXT STUDENT
+ ************************************************************/
+
+async function resetApp() {
+
   await stopScanner();
 
-  processing = false;
+  isProcessing = false;
 
-  document.getElementById("result").style.display = "none";
-  document.getElementById("studentID").value = "";
-  document.getElementById("startButton").disabled = false;
+  document.getElementById("studentIdInput").value =
+    "";
 
-  setMessage("Ready for the next student.");
+  document.getElementById("resultBox").style.display =
+    "none";
 
-  if (scanner) {
-    try {
-      await scanner.clear();
-    } catch (e) {}
-    scanner = null;
-  }
+  document.getElementById("resultBox").className =
+    "result";
+
+  document.getElementById("nextButton")
+    .classList.add("hidden");
+
+  document.getElementById("verifyButton").disabled =
+    false;
+
+  showStatus(
+    "Ready for the next student.",
+    "success"
+  );
+
+  document.getElementById("studentIdInput").focus();
+
 }
+
 </script>
 
 </body>
