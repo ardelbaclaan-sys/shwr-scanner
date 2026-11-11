@@ -1,0 +1,478 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1, maximum-scale=1">
+
+<title>DLSU Laguna | SHWR Scanner</title>
+
+<script>
+/* REPLACE THIS WITH YOUR APPS SCRIPT WEB APP URL */
+const API_URL = "PASTE_YOUR_APPS_SCRIPT_EXEC_URL_HERE";
+</script>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 20px;
+  background: #f3f5f7;
+  font-family: Arial, sans-serif;
+  color: #222;
+}
+
+.container {
+  max-width: 480px;
+  margin: 20px auto;
+  background: white;
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: 0 4px 18px rgba(0,0,0,.08);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.header h2 {
+  margin: 5px 0;
+  color: #006b3f;
+  font-size: 21px;
+}
+
+.header p {
+  margin: 5px 0;
+  color: #666;
+  font-size: 13px;
+}
+
+#reader {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+button {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 9px;
+  margin-top: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.start {
+  background: #006b3f;
+  color: white;
+}
+
+.reset {
+  background: #333;
+  color: white;
+}
+
+.verify {
+  background: #e9edf0;
+  color: #222;
+}
+
+input {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-top: 12px;
+  font-size: 16px;
+}
+
+.result {
+  margin-top: 18px;
+  padding: 20px 12px;
+  border-radius: 10px;
+  text-align: center;
+  display: none;
+}
+
+.result h1 {
+  margin: 0;
+  font-size: 27px;
+}
+
+.result p {
+  margin-bottom: 0;
+  overflow-wrap: anywhere;
+}
+
+.with {
+  background: #e0f4e8;
+  color: #126333;
+}
+
+.without {
+  background: #fde8e8;
+  color: #a51d1d;
+}
+
+.error {
+  background: #fff2d8;
+  color: #805000;
+}
+
+#message {
+  text-align: center;
+  color: #666;
+  font-size: 13px;
+  margin-top: 12px;
+  overflow-wrap: anywhere;
+}
+
+.footer {
+  text-align: center;
+  color: #888;
+  font-size: 11px;
+  margin-top: 22px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <h2>DE LA SALLE UNIVERSITY</h2>
+    <p>Laguna Campus</p>
+    <h3>SHWR VERIFICATION</h3>
+    <p>Student Health and Wellness Record</p>
+  </div>
+
+  <div id="reader"></div>
+
+  <button class="start" id="startButton"
+  onclick="startScanner()">
+    START BARCODE SCANNER
+  </button>
+
+  <p id="message">
+    Tap the button to activate your phone camera.
+  </p>
+
+  <div style="margin-top:22px">
+    <label><b>Manual Student ID Verification</b></label>
+    <input id="studentID"
+    type="text"
+    placeholder="Enter Student ID Number"
+    autocomplete="off">
+
+    <button class="verify" onclick="manualVerify()">
+      VERIFY STUDENT ID
+    </button>
+  </div>
+
+  <div id="result" class="result">
+    <h1 id="status"></h1>
+    <p id="displayID"></p>
+  </div>
+
+  <button class="reset" onclick="resetScanner()">
+    SCAN NEXT STUDENT
+  </button>
+
+  <div class="footer">
+    Health Services Unit | DLSU Laguna Campus
+  </div>
+
+</div>
+
+<script>
+let scanner = null;
+let scannerRunning = false;
+let processing = false;
+let libraryLoading = false;
+
+/* BARCODE FORMATS ONLY - NO QR */
+const barcodeFormats = [
+  1,  // CODE_128
+  2,  // CODE_39
+  3,  // CODE_93
+  4,  // CODABAR
+  5,  // EAN_13
+  6,  // EAN_8
+  7,  // ITF
+  8,  // UPC_A
+  9   // UPC_E
+];
+
+function setMessage(message) {
+  document.getElementById("message").textContent = message;
+}
+
+function loadScannerLibrary() {
+  return new Promise((resolve, reject) => {
+    if (window.Html5Qrcode) {
+      resolve();
+      return;
+    }
+
+    if (libraryLoading) {
+      const check = setInterval(() => {
+        if (window.Html5Qrcode) {
+          clearInterval(check);
+          resolve();
+        }
+      }, 200);
+
+      setTimeout(() => {
+        clearInterval(check);
+        if (!window.Html5Qrcode) {
+          reject(new Error("Scanner library loading timed out."));
+        }
+      }, 12000);
+
+      return;
+    }
+
+    libraryLoading = true;
+
+    const sources = [
+      "https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js",
+      "https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"
+    ];
+
+    function trySource(index) {
+      if (index >= sources.length) {
+        libraryLoading = false;
+        reject(new Error(
+          "Could not load barcode library. Check your internet connection."
+        ));
+        return;
+      }
+
+      const script = document.createElement("script");
+      script.src = sources[index];
+
+      script.onload = () => {
+        libraryLoading = false;
+        if (window.Html5Qrcode) {
+          resolve();
+        } else {
+          trySource(index + 1);
+        }
+      };
+
+      script.onerror = () => {
+        trySource(index + 1);
+      };
+
+      document.head.appendChild(script);
+    }
+
+    trySource(0);
+  });
+}
+
+async function startScanner() {
+  if (scannerRunning) return;
+
+  if (!navigator.mediaDevices ||
+      !navigator.mediaDevices.getUserMedia) {
+    setMessage(
+      "Camera access is unavailable. Open this HTTPS page directly in Chrome or Safari."
+    );
+    return;
+  }
+
+  if (API_URL.indexOf("/exec") === -1 ||
+      API_URL.indexOf("PASTE_YOUR") !== -1) {
+    setMessage("Please configure your Apps Script Web App URL first.");
+    return;
+  }
+
+  try {
+    processing = false;
+    setMessage("Loading barcode scanner...");
+
+    await loadScannerLibrary();
+
+    scanner = new Html5Qrcode("reader", {
+      formatsToSupport: barcodeFormats,
+      verbose: false
+    });
+
+    setMessage("Requesting camera permission...");
+
+    await scanner.start(
+      { facingMode: "environment" },
+      {
+        fps: 12,
+        aspectRatio: 1.5
+      },
+      onBarcodeDetected,
+      () => {}
+    );
+
+    scannerRunning = true;
+    setMessage("Camera active. Point it at the student's barcode.");
+
+    document.getElementById("startButton").disabled = true;
+
+  } catch (error) {
+    scannerRunning = false;
+    setMessage("CAMERA ERROR: " + (error.message || error));
+  }
+}
+
+async function onBarcodeDetected(decodedText) {
+  if (processing) return;
+
+  const studentID = String(decodedText || "").trim();
+
+  if (!studentID) return;
+
+  processing = true;
+
+  await stopScanner();
+
+  document.getElementById("studentID").value = studentID;
+
+  verifyStudent(studentID);
+}
+
+function stopScanner() {
+  if (!scanner || !scannerRunning) {
+    scannerRunning = false;
+    return Promise.resolve();
+  }
+
+  return scanner.stop()
+    .catch(() => {})
+    .then(() => {
+      scannerRunning = false;
+    });
+}
+
+function verifyStudent(studentID) {
+  studentID = String(studentID || "").trim();
+
+  if (!studentID) {
+    showResult("INVALID ID", "", "error");
+    return;
+  }
+
+  setMessage("Verifying student ID...");
+
+  const callbackName =
+    "shwrCallback_" + Date.now() + "_" +
+    Math.floor(Math.random() * 100000);
+
+  const script = document.createElement("script");
+  const timeout = setTimeout(() => {
+    cleanup();
+    showResult(
+      "CONNECTION ERROR",
+      "Unable to reach the SHWR database.",
+      "error"
+    );
+  }, 15000);
+
+  function cleanup() {
+    clearTimeout(timeout);
+    delete window[callbackName];
+    if (script.parentNode) {
+      script.parentNode.removeChild(script);
+    }
+  }
+
+  window[callbackName] = function(response) {
+    cleanup();
+
+    if (!response || !response.success) {
+      showResult(
+        "VERIFICATION ERROR",
+        response && response.message
+          ? response.message
+          : "Please contact the Health Services Unit.",
+        "error"
+      );
+      return;
+    }
+
+    showResult(
+      response.status,
+      "Student ID: " + response.studentId,
+      response.status === "WITH SHWR" ? "with" : "without"
+    );
+
+    setMessage("Verification completed.");
+  };
+
+  script.onerror = function() {
+    cleanup();
+    showResult(
+      "CONNECTION ERROR",
+      "Could not connect to the verification service.",
+      "error"
+    );
+  };
+
+  script.src =
+    API_URL +
+    "?action=verify" +
+    "&id=" + encodeURIComponent(studentID) +
+    "&callback=" + encodeURIComponent(callbackName) +
+    "&_=" + Date.now();
+
+  document.body.appendChild(script);
+}
+
+function manualVerify() {
+  const id = document.getElementById("studentID").value;
+  if (!id.trim()) {
+    showResult("ENTER STUDENT ID", "", "error");
+    return;
+  }
+
+  processing = true;
+  verifyStudent(id);
+}
+
+function showResult(status, detail, className) {
+  const result = document.getElementById("result");
+
+  result.style.display = "block";
+  result.className = "result " + className;
+
+  document.getElementById("status").textContent = status;
+  document.getElementById("displayID").textContent = detail;
+}
+
+async function resetScanner() {
+  await stopScanner();
+
+  processing = false;
+
+  document.getElementById("result").style.display = "none";
+  document.getElementById("studentID").value = "";
+  document.getElementById("startButton").disabled = false;
+
+  setMessage("Ready for the next student.");
+
+  if (scanner) {
+    try {
+      await scanner.clear();
+    } catch (e) {}
+    scanner = null;
+  }
+}
+</script>
+
+</body>
+</html>
