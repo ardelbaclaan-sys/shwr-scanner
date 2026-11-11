@@ -1,11 +1,11 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport"
-content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>DLSU Laguna | SHWR Verification</title>
 
@@ -231,6 +231,28 @@ button:disabled {
   text-decoration: none;
 }
 
+/* BROWSER REMINDER */
+
+.browser-note {
+  margin-top: 25px;
+  padding: 14px;
+  background: #fff8e6;
+  border-left: 4px solid #d69e00;
+  border-radius: 6px;
+  color: #755500;
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.browser-note strong {
+  color: #765400;
+}
+
+.browser-note p {
+  margin: 5px 0;
+}
+
 .footer {
   margin-top: 25px;
   color: #888;
@@ -288,7 +310,6 @@ button:disabled {
 
   </div>
 
-
   <div class="announcement">
 
     <strong>ANNOUNCEMENT</strong>
@@ -308,7 +329,6 @@ button:disabled {
 
   </div>
 
-
   <div class="section-title">
     1. BARCODE / QR CODE SCANNER
   </div>
@@ -324,7 +344,6 @@ button:disabled {
     onclick="stopScanner()">
     STOP SCANNER
   </button>
-
 
   <div class="section-title">
     2. MANUAL STUDENT ID ENTRY
@@ -343,9 +362,7 @@ button:disabled {
     VERIFY STUDENT
   </button>
 
-
   <div id="statusMessage" class="status"></div>
-
 
   <div id="resultBox" class="result">
 
@@ -361,14 +378,12 @@ button:disabled {
 
   </div>
 
-
   <button
     id="nextButton"
     class="hidden"
     onclick="resetApp()">
     SCAN NEXT STUDENT
   </button>
-
 
   <div id="formLink" class="form-link">
 
@@ -385,6 +400,24 @@ button:disabled {
 
   </div>
 
+  <!-- BROWSER REMINDER -->
+
+  <div class="browser-note">
+
+    <strong>IMPORTANT REMINDER</strong>
+
+    <p>
+      For the best experience and proper camera access,
+      please open this SHWR Verification System using
+      <strong>Google Chrome</strong> or
+      <strong>Safari</strong>.
+    </p>
+
+    <p>
+      Please allow camera access when prompted by your browser.
+    </p>
+
+  </div>
 
   <div class="footer">
 
@@ -396,7 +429,6 @@ button:disabled {
   </div>
 
 </div>
-
 
 <script>
 
@@ -483,8 +515,6 @@ async function startScanner() {
 
     try {
 
-      // Try rear camera first.
-
       await html5QrCode.start(
         { facingMode: "environment" },
         scannerConfig,
@@ -495,8 +525,6 @@ async function startScanner() {
     } catch (rearError) {
 
       console.warn("Rear camera failed:", rearError);
-
-      // Fallback to front camera.
 
       await html5QrCode.start(
         { facingMode: "user" },
@@ -731,8 +759,6 @@ function verifyStudentID(studentID) {
 
   }
 
-  // Receive Google Apps Script response.
-
   window[callbackName] = function(response) {
 
     if (completed) return;
@@ -788,8 +814,6 @@ function verifyStudentID(studentID) {
     }
 
   };
-
-  // Build API request.
 
   const query =
     "?action=verify" +
